@@ -1,0 +1,169 @@
+<!-- templates/login.html -->
+<!DOCTYPE html>
+{% load task_filters %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление задачами</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .categories-container {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+        
+        .category-card {
+            min-width: 300px;
+            max-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .category-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .task-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .create-category-form {
+            margin-bottom: 20px;
+        }
+
+        .category-form-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            flex-grow: 1;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{% url 'tasks' %}" class="navbar-brand">Task Manager</a>
+            <div class="navbar-user">
+                <span>{{ request.user.login }}</span>
+                <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Выйти</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+        <div class="messages fade-in">
+            {% for message in messages %}
+            <div class="message {% if message.tags %}message-{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="stats-grid fade-in">
+            <div class="card stat-card">
+                <h3>Всего категорий</h3>
+                <div class="stat-number">{{ totalCategories }}</div>
+            </div>
+            <div class="card stat-card">
+                <h3>Всего задач</h3>
+                <div class="stat-number">{{ totalTasks }}</div>
+            </div>
+            <div class="card stat-card">
+                <h3>Выполнено задач</h3>
+                <div class="stat-number">{{ completedTasks.count }}</div>
+            </div>
+        </div>
+
+        <!-- Форма создания категории -->
+        <div class="card fade-in create-category-form">
+            <h2>Создать категорию</h2>
+            <form method="post" class="category-form-container">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="category-title">Название категории</label>
+                    <input type="text" name="title" id="category-title" class="form-control" required>
+                </div>
+                <button type="submit" name="create_category" class="btn btn-primary">Создать категорию</button>
+            </form>
+        </div>
+
+        <!-- Категории и их задачи -->
+        <div class="categories-container fade-in">
+            {% for category in categories %}
+            <div class="category-card">
+                <div class="category-header">
+                    <h3 class="category-title">{{ category.title }}</h3>
+                    <form method="post" action="{% url 'delete_category' category.id %}" style="margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" style="padding: 5px 10px;">✖</button>
+                    </form>
+                </div>
+
+                <!-- Форма создания задачи -->
+                <form method="post" class="form-group" style="margin-bottom: 15px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="category" value="{{ category.id }}">
+                    <input type="text" name="task-title" class="form-control" placeholder="Новая задача" required>
+                    <button type="submit" name="create_task" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                        Добавить задачу
+                    </button>
+                </form>
+
+                <!-- Список задач категории -->
+                <div class="task-list">
+                    {% for task in tasks %}
+                    {% if task.category == category %}
+                    <div class="task-item">
+                        <form method="post" action="{% url 'toggle_complete' task.id %}" style="margin: 0;">
+                            {% csrf_token %}
+                            <input type="checkbox" 
+                                   class="task-checkbox"
+                                   onchange="this.form.submit()" 
+                                   {% if task.is_done %}checked{% endif %}>
+                        </form>
+                        
+                        <span class="task-title {% if task.is_done %}task-done{% endif %}">
+                            {{ task.title }}
+                        </span>
+                        
+                        <div class="task-actions">
+                            <form method="post" action="{% url 'delete' task.id %}" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger" style="padding: 5px 10px;">✖</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

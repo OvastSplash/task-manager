@@ -1,0 +1,90 @@
+<!-- templates/login.html -->
+<!DOCTYPE html>
+{% load task_filters %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <span class="navbar-brand">Task Manager</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card fade-in" style="max-width: 400px; margin: 2rem auto;">
+            <h1>Регистрация</h1>
+
+            {% if form.non_field_errors %}
+            <div class="message message-error">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" class="form-group">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.login.id_for_label }}">{{ form.login.label }}</label>
+                    {{ form.login|add_class:"form-control" }}
+                    {% if form.login.errors %}
+                    <div class="message message-error">
+                        {% for error in form.login.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                    {{ form.email|add_class:"form-control" }}
+                    {% if form.email.errors %}
+                    <div class="message message-error">
+                        {% for error in form.email.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                    {{ form.password|add_class:"form-control" }}
+                    {% if form.password.errors %}
+                    <div class="message message-error">
+                        {% for error in form.password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.checkPassword.id_for_label }}">{{ form.checkPassword.label }}</label>
+                    {{ form.checkPassword|add_class:"form-control" }}
+                    {% if form.checkPassword.errors %}
+                    <div class="message message-error">
+                        {% for error in form.checkPassword.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Зарегистрироваться</button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1rem;">
+                <p>Уже есть аккаунт? <a href="{% url 'login' %}" style="color: var(--primary-color);">Войти</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

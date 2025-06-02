@@ -1,0 +1,67 @@
+from django import forms
+from .models import CustomUser
+
+class CustromUserCreationForm(forms.ModelForm):
+    login = forms.CharField(label='Логин', max_length=50)
+    password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
+    checkPassword = forms.CharField(label='Подтвердите пароль', widget=forms.PasswordInput)
+    email = forms.EmailField(label='Email', required=False)
+
+    class Meta:
+        model = CustomUser
+        fields = ('login', 'email')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        checkPassword = cleaned_data.get("checkPassword")
+        
+        if not password:
+            self.add_error("password", "Введите пароль")
+        
+        if not checkPassword:
+            self.add_error("checkPassword", "Подтвердите пароль")
+
+        if password != checkPassword:
+            self.add_error("checkPassword", "Пароли не совпадают")
+        
+        return cleaned_data
+
+    def clean_login(self):
+        login = self.cleaned_data.get("login")
+
+        if not login:
+            raise forms.ValidationError("Введите логин")
+        elif CustomUser.objects.filter(login=login).exists():
+            raise forms.ValidationError("Данный пользователь уже зарегестрирован")
+        
+        return login
+    
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+
+        if not email:
+            raise forms.ValidationError("Введите почту")
+        elif CustomUser.objects.filter(email=email).exists():
+            raise forms.ValidationError("Данная почта уже зарегестрирована")
+        
+        return email
+
+
+class LoginForm(forms.Form):
+    login = forms.CharField(label="Логин или email", max_length=50)
+    password = forms.CharField(label="Пароль", widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        login_or_email = cleaned_data.get("login")
+
+        user = CustomUser.objects.filter(login=login_or_email)
+
+        if not user.exists():
+            user = CustomUser.objects.filter(email=login_or_email)
+
+        if not user.exists():
+            raise forms.ValidationError("Пользователь с таким именем или почтой не был найден")
+        
+        return cleaned_data            
