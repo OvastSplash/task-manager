@@ -3,6 +3,8 @@ from django.contrib import messages
 from . forms import CustromUserCreationForm, LoginForm
 from . models import CustomUser
 from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
 
@@ -43,3 +45,18 @@ def register(request):
             return redirect("/")
 
     return render(request, 'users/register.html', {'form': form})
+
+
+@login_required
+def telegram_auth(request):
+    if request.method == 'POST':
+        telegram_id = request.POST.get('telegram_id')
+        user = request.user
+        if not CustomUser.objects.filter(telegram_id=telegram_id).exists():
+            user.telegram_id = telegram_id
+            user.save()
+            return redirect("tasks")
+        else:
+            messages.error(request, "Пользователь с таким telegram id уже существует")
+    
+    return redirect("tasks")

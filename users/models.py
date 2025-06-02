@@ -38,6 +38,7 @@ class CustomUser(AbstractBaseUser):
     login = models.CharField(max_length=50, unique=True)
     email = models.EmailField(null=True, unique=True)
     date_joined = models.DateTimeField(default=timezone.now)
+    telegram_id = models.CharField(max_length=50, null=True)
 
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

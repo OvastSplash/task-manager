@@ -28,6 +28,9 @@ class CreateCategoryForm(forms.ModelForm):
         cleaned_data = super().clean()
         title = cleaned_data.get("title")
 
+        if TaskCategory.objects.filter(title=title, is_visible=True).exists():
+            raise forms.ValidationError("Категория с таким название уже существует")
+        
         if title is None:
             raise forms.ValidationError("Введите название категории")
         

@@ -50,12 +50,56 @@
         .category-form-container {
             display: flex;
             gap: 10px;
-            align-items: flex-end;
+            align-items: flex-start;
+            flex-direction: column;
         }
 
         .form-group {
             flex-grow: 1;
             margin: 0;
+            width: 100%;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.25rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .telegram-login-button {
+            margin-right: 10px;
+            min-width: 150px;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .navbar {
+            background-color: #2c3e50;
+            padding: 1rem;
+            color: white;
+            margin-bottom: 2rem;
         }
     </style>
 </head>
@@ -64,11 +108,11 @@
         <div class="navbar-content">
             <a href="{% url 'tasks' %}" class="navbar-brand">Task Manager</a>
             <div class="navbar-user">
-                <span>{{ request.user.login }}</span>
-                <form method="post" action="{% url 'logout' %}" style="margin: 0;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Выйти</button>
-                </form>
+                    <span>{{ request.user.login }}</span>
+                    <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Выйти</button>
+                    </form>
             </div>
         </div>
     </nav>
@@ -105,10 +149,21 @@
             <form method="post" class="category-form-container">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="category-title">Название категории</label>
-                    <input type="text" name="title" id="category-title" class="form-control" required>
+                    <div class="input-group">
+                        <div style="flex-grow: 1;">
+                            <label for="category-title">Название категории</label>
+                            <input type="text" name="title" id="category-title" class="form-control" required>
+                        </div>
+                        <button type="submit" name="create_category" class="btn btn-primary" style="margin-top: 24px;">Создать категорию</button>
+                    </div>
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
-                <button type="submit" name="create_category" class="btn btn-primary">Создать категорию</button>
             </form>
         </div>
 

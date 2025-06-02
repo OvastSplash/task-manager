@@ -14,8 +14,11 @@ def main(request):
             form = CreateCategoryForm(request.POST)
 
             if form.is_valid():
+                user = request.user
+                
                 category = form.save(commit=False)
                 category.user = request.user
+                category.number = TaskCategory.objects.filter(user=user, is_visible=True).count() + 1
                 category.save()
         
         elif "create_task" in request.POST:
@@ -28,6 +31,7 @@ def main(request):
                 
                 category_id = request.POST.get('category')
                 task.category = TaskCategory.objects.filter(id=category_id, user=request.user).first()
+                task.number = Task.objects.filter(category=task.category, is_visible=True).count() + 1
                 task.save()
 
     else:
@@ -35,7 +39,7 @@ def main(request):
         if not form.count():
             task_form = CreateTaskForm(prefix="task")
         else:
-            task_form = None    
+            task_form = None
             
 
     tasks = Task.objects.filter(user=request.user, is_visible=True)
@@ -57,33 +61,26 @@ def main(request):
     return render(request, 'tasks/createTask.html', context)
 
 
+# Отмечает задачу как выполненную
 @login_required
 def toggle_complete(request, task_id):
-    task = get_object_or_404(Task, id=task_id, user=request.user)
-
     if request.method == "POST":
-        task.is_done = not task.is_done
-        task.save()
-        print(task.is_done)
-
+        Task.objects.task_complete(task_id)
+        
     return redirect('tasks')
 
+# Удаляет задачу
 @login_required
 def delete_task(request, task_id):
-    task = get_object_or_404(Task, id=task_id, user=request.user)
-
     if request.method == 'POST':
-        task.is_visible = False
-        task.save()
+        Task.objects.hide_task(task_id)
 
     return redirect('tasks')
 
+# Удаляет категорию
 @login_required
 def delete_category(request, category_id):
-    category = get_object_or_404(TaskCategory, id=category_id, user=request.user)
-
     if request.method == 'POST':
-        category.is_visible = False
-        category.save()
-
+        TaskCategory.objects.hide_category(category_id)
+                
     return redirect('tasks')
