@@ -56,7 +56,7 @@ class CreateTaskView(BaseAPIView):
         try:
             category = TaskCategory.objects.get(user=self.user, is_visible=True, number=category_number)
         except TaskCategory.DoesNotExist:
-            raise NotFound(detail="Task not found")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         title = request.data.get('title')
         
@@ -186,7 +186,7 @@ class CategoriesActionView(BaseAPIView):
             category = TaskCategory.objects.get(user=self.user, is_visible=True, number=number)
             category_id = category.id
             TaskCategory.objects.hide_category(category_id)
-            return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         
         except TaskCategory.DoesNotExist:
             raise NotFound(detail="Category not found")
