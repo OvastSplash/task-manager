@@ -3,6 +3,7 @@ import json
 
 TOKEN = 'G5p3t2qZ6LHlJ9YapGzRZk5-_8nKk0qVY2uVJYYGvF0'
 AUTH_URL = 'http://127.0.0.1:8000/telegram_auth/'
+STATISTIC_URL = 'http://127.0.0.1:8000/api/v1/task/statistic/'
 GET_TASKS_URL = 'http://127.0.0.1:8000/api/v1/task/'
 TASK_ACTION_URL = 'http://127.0.0.1:8000/api/v1/task/action/'
 CATEGORIES_URL = 'http://127.0.0.1:8000/api/v1/task/categories/'
@@ -14,6 +15,22 @@ class ApiClient():
             self.username = username
         else: 
             raise ValueError("Username is required")
+        
+    def get_statistic(self):
+        response = requests.get(STATISTIC_URL, headers={"TOKEN": TOKEN, "TELEGRAM-ID": self.username})
+        
+        if response.status_code == 200:
+            data = response.json()
+            message = f"📊 *Статистика*:\n\n"
+            message += f"📂 *Количество категорий*: {data['categories_count']}\n"
+            message += f"📋 *Количество задач*: {data['total_tasks']}\n"
+            message += f"✅ *Всего выполнено задач*: {data['completed_tasks']}\n"
+            message += f"❌ *Не выполнено задач*: {data['need_tasks']}\n"
+            
+            return message
+        else:
+            return None
+        
     
     def auth(self):
         response = requests.get(AUTH_URL, headers={'TELEGRAM-ID': self.username})

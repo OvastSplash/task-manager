@@ -6,7 +6,7 @@ from rest_framework import status
 from django.db.models import Prefetch
 from tasks.models import Task, TaskCategory
 from users.models import CustomUser
-from .serializers import TaskCategorySerializer, CategorySerializer, TaskSerializer
+from .serializers import TaskCategorySerializer, CategorySerializer, TaskSerializer, StatisticSerializer
 from rest_framework.exceptions import NotFound
 
 class BaseAPIView(APIView):
@@ -20,6 +20,23 @@ class BaseAPIView(APIView):
             raise NotFound(detail="User not found")
         
         return super().dispatch(request, *args, **kwargs)
+
+class GetStatistic(BaseAPIView):
+    def get(self, request, *args, **kwargs):
+        categories = TaskCategory.objects.filter(user=self.user, is_visible=True)  
+        all_tasks = Task.objects.filter(user=self.user, is_visible=True)
+        done_tasks = Task.objects.filter(user=self.user, is_done=True)
+        need_tasks = all_tasks.filter(is_done=False).count()
+        
+        data = {
+            'categories_count': categories.count(),
+            'total_tasks': all_tasks.count(),
+            'completed_tasks': done_tasks.count(),
+            'need_tasks': need_tasks
+        }
+        
+        serializer = StatisticSerializer(data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class AllTasksView(BaseAPIView):
     # Получение всех задач из всех категорий

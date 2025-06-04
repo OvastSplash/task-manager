@@ -35,3 +35,9 @@ class CategorySerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Категория с таким названием уже существует")
         
         return TaskCategory.objects.create_category(user, title)
+
+class StatisticSerializer(serializers.Serializer):
+    categories_count = serializers.IntegerField()
+    total_tasks = serializers.IntegerField()
+    completed_tasks = serializers.IntegerField()
+    need_tasks = serializers.IntegerField()

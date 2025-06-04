@@ -3,16 +3,16 @@ from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
 # Обрабатывает главную меню
-async def main_menu(update: Update):
+async def main_menu(update: Update, text: str="Выберите опцию:"):
     keyboard = [
-            ["📋 Посмотреть задачи", "ℹ️ Инфо"],
-            ["❓ Редактировать задачи", "📂 Кактегории"]
+            ["📋 Посмотреть задачи", "ℹ️ Посмотреть статистику профиля"],
+            ["📂 Категории"]
         ]
     reply_markup = ReplyKeyboardMarkup(
         keyboard,
         resize_keyboard=True  # Подгоняет клавиатуру под экран
     )
-    await update.message.reply_text("Выберите опцию:", reply_markup=reply_markup)
+    await update.message.reply_text(text, reply_markup=reply_markup)
     
 async def categories_menu(update: Update, text: str, categories: list):
     keyboard = [

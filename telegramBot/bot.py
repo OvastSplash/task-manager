@@ -3,7 +3,7 @@ from api_client import ApiClient
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
-API_TOKEN = '7863398372:AAHQPr5rMAG_BOfSjf6OK7catviIjloFOKE'
+API_TOKEN = 'YOUR_API_KEY'
 
 # Обрабатывает команду /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -48,8 +48,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if message == "↩️ Вернутся в главное меню":
         await menu.main_menu(update)
     
-    if message == "❓ Редактировать задачи":
-        await update.message.reply_text("Выберете категорию: ")
+    if message == "ℹ️ Посмотреть статистику профиля":
+        data = client.get_statistic()
+        print(f"DATA --- {data}")
+        if data:
+            await menu.main_menu(update, text=data)
+        else:
+            await menu.main_menu(update, text="Не удалось получить статистику")
+            
         
 # Обрабатывает категории
 async def handle_category(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -59,7 +65,7 @@ async def handle_category(update: Update, context: ContextTypes.DEFAULT_TYPE):
     client = ApiClient(username)
     
     # Вывод всех категорий
-    if message == "📂 Кактегории":
+    if message == "📂 Категории":
         data = client.get_categories()
         if data:
             await update.message.reply_text(data)
