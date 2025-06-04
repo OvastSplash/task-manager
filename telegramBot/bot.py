@@ -68,11 +68,18 @@ async def handle_category(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if message == "📂 Категории":
         data = client.get_categories()
         if data:
+            # Если нет категорий, то выводим сообщение и возвращаемся в главное меню
+            if "Нет категорий" not in data:
+                await update.message.reply_text(data)
+                catalogies = client.get_categories(True)
+                await menu.categories_menu(update, "Выберите опцию:", catalogies)
+                
+            await menu.categories_menu(update, "Выберите опцию:")
             await update.message.reply_text(data)
-            catalogies = client.get_categories(True)
-            await menu.categories_menu(update, "Выберите опцию:", catalogies)
+            
         else:
             await update.message.reply_text("Не удалось получить категории")
+            await menu.main_menu(update)
         
     # Добавление категории
     if message == "📂 Добавить категорию":

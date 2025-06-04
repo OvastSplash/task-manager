@@ -5,7 +5,7 @@ from django.utils import timezone
 # Create your models here.
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, login, password, **extra_fileds):
+    def create_user(self, login, password, **extra_fields):
         if not login:
             raise ValueError('Введите логин')
         
@@ -15,23 +15,40 @@ class CustomUserManager(BaseUserManager):
         elif self.model.objects.filter(login=login).exists():
             raise ValueError('Пользователь с таким имененм уже существует')
 
-        
-        user = self.model(login=login, **extra_fileds)
+        user = self.model(login=login, **extra_fields)
         user.set_password(password)
         user.save(using=self.db)
         return user
     
-    def create_superuser(self, login, password, **extra_fileds):
-        extra_fileds.setdefault('is_staff', True)
-        extra_fileds.setdefault('is_superuser', True)
-        extra_fileds.setdefault('is_active', True)
+    def create_superuser(self, login, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
 
-        if extra_fileds.get('is_staff') is not True:
+        if extra_fields.get('is_staff') is not True:
             raise ValueError('Суперпользователь должен иметь is_staff=True')
-        if extra_fileds.get('is_superuser') is not True:
+        if extra_fields.get('is_superuser') is not True:
             raise ValueError('Суперпользователь должен иметь is_superuser=True')        
 
-        return self.create_user(login, password, **extra_fileds)
+        return self.create_user(login, password, **extra_fields)
+    
+    def update_user(self, user, password=None, email=None, telegram=None, **extra_fields):
+        """Обновляет данные пользователя"""
+        if password:
+            user.set_password(password)
+        
+        # Обновляем email даже если он пустой (None)
+        user.email = email
+        
+        # Обновляем telegram_id даже если он пустой (None)
+        user.telegram_id = telegram
+        
+        # Обновляем дополнительные поля
+        for field, value in extra_fields.items():
+            setattr(user, field, value)
+            
+        user.save(using=self.db)
+        return user
         
 
 class CustomUser(AbstractBaseUser):

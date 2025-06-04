@@ -6,10 +6,11 @@ class CustromUserCreationForm(forms.ModelForm):
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     checkPassword = forms.CharField(label='Подтвердите пароль', widget=forms.PasswordInput)
     email = forms.EmailField(label='Email', required=False)
+    telegram = forms.URLField(label='Ссылка на телеграм (не обязательно)', required=False)
 
     class Meta:
         model = CustomUser
-        fields = ('login', 'email')
+        fields = ('login', 'email', 'telegram_id')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -46,7 +47,19 @@ class CustromUserCreationForm(forms.ModelForm):
             raise forms.ValidationError("Данная почта уже зарегестрирована")
         
         return email
+    
+    def clean_telegram(self):
+        telegram_url = self.cleaned_data.get("telegram")
+        if "https://t.me/" in telegram_url:
+            telegram = telegram_url.split("https://t.me/")[1]
+            
+            if CustomUser.objects.filter(telegram_id=telegram).exists():
+                raise forms.ValidationError("Данный пользователь уже зарегестрирован")
+            
+        else:
+            raise forms.ValidationError("Введите корректную ссылку на телеграм")
 
+        return telegram
 
 class LoginForm(forms.Form):
     login = forms.CharField(label="Логин или email", max_length=50)
@@ -64,4 +77,46 @@ class LoginForm(forms.Form):
         if not user.exists():
             raise forms.ValidationError("Пользователь с таким именем или почтой не был найден")
         
-        return cleaned_data            
+        return cleaned_data      
+    
+class UpdateProfileForm(forms.ModelForm):
+    new_password = forms.CharField(label="Новый пароль", widget=forms.PasswordInput, required=False)
+    check_password = forms.CharField(label="Подтвердите пароль", widget=forms.PasswordInput, required=False)
+    email = forms.EmailField(label="Email", required=False)
+    telegram = forms.URLField(label="Ссылка на телеграм", required=False)
+    
+    class Meta:
+        model = CustomUser
+        fields = []  # Пустой список, так как мы обрабатываем поля вручную
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get("new_password")
+        check_password = cleaned_data.get("check_password")
+        
+        # Проверяем пароли только если введен новый пароль
+        if new_password:
+            if not check_password:
+                self.add_error("check_password", "Подтвердите пароль")
+            elif new_password != check_password:
+                self.add_error("check_password", "Пароли не совпадают")
+        
+        return cleaned_data
+    
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if email and CustomUser.objects.exclude(pk=self.instance.pk).filter(email=email).exists():
+            raise forms.ValidationError("Данная почта уже зарегестрирована")
+        return email
+    
+    def clean_telegram(self):
+        telegram_url = self.cleaned_data.get("telegram")
+        if telegram_url:
+            if "https://t.me/" in telegram_url:
+                telegram = telegram_url.split("https://t.me/")[1]
+                if CustomUser.objects.exclude(pk=self.instance.pk).filter(telegram_id=telegram).exists():
+                    raise forms.ValidationError("Данный пользователь уже зарегестрирован")
+                return telegram
+            else:
+                raise forms.ValidationError("Введите корректную ссылку на телеграм")
+        return None

@@ -14,12 +14,13 @@ async def main_menu(update: Update, text: str="Выберите опцию:"):
     )
     await update.message.reply_text(text, reply_markup=reply_markup)
     
-async def categories_menu(update: Update, text: str, categories: list):
+async def categories_menu(update: Update, text: str, categories: list=None):
     keyboard = [
         ["📂 Добавить категорию", "📂 Изменить категорию", "📂 Удалить категорию", "↩️ Вернутся в главное меню"]
     ]
     
-    keyboard.append(categories)
+    if categories:
+        keyboard.append(categories)
     
     reply_markup = ReplyKeyboardMarkup(
         keyboard,

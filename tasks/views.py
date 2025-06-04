@@ -58,7 +58,7 @@ def main(request):
         'totalCategories': totalCategories,
     }
 
-    return render(request, 'tasks/createTask.html', context)
+    return render(request, 'tasks/tasks.html', context)
 
 
 # Отмечает задачу как выполненную

@@ -55,6 +55,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="{{ form.telegram.id_for_label }}">{{ form.telegram.label }}</label>
+                    {{ form.telegram|add_class:"form-control" }}
+                    {% if form.telegram.errors %}
+                    <div class="message message-error">
+                        {% for error in form.telegram.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
                     <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
                     {{ form.password|add_class:"form-control" }}
                     {% if form.password.errors %}

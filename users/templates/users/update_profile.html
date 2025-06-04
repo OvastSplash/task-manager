@@ -1,0 +1,89 @@
+{% load task_filters %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обновление профиля</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <span class="navbar-brand">Task Manager</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card fade-in" style="max-width: 400px; margin: 2rem auto;">
+            <h1>Обновление профиля</h1>
+
+            {% if messages %}
+            <div class="message message-error">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" class="form-group">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.new_password.id_for_label }}">{{ form.new_password.label }}</label>
+                    {{ form.new_password|add_class:"form-control" }}
+                    {% if form.new_password.errors %}
+                    <div class="message message-error">
+                        {% for error in form.new_password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.check_password.id_for_label }}">{{ form.check_password.label }}</label>
+                    {{ form.check_password|add_class:"form-control" }}
+                    {% if form.check_password.errors %}
+                    <div class="message message-error">
+                        {% for error in form.check_password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                    {{ form.email|add_class:"form-control" }}
+                    {% if form.email.errors %}
+                    <div class="message message-error">
+                        {% for error in form.email.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.telegram.id_for_label }}">{{ form.telegram.label }}</label>
+                    {{ form.telegram|add_class:"form-control" }}
+                    {% if form.telegram.errors %}
+                    <div class="message message-error">
+                        {% for error in form.telegram.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Обновить профиль</button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="{% url 'tasks' %}" style="color: var(--primary-color);">Вернуться к задачам</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
