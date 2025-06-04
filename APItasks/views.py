@@ -90,11 +90,15 @@ class ActionTaskView(BaseAPIView):
             raise NotFound(detail="Task not found")
         
         title = request.data.get('title')
-        
+        if not title:
+            title = task.title
+
         is_done = request.data.get('is_done')
-        if not is_done:
+        print(f"IS DONE --- {is_done}")
+
+        if not is_done and is_done != False:
             is_done = task.is_done
-        
+
         if title:
             data = {
                 'title': title,
@@ -120,10 +124,11 @@ class ActionTaskView(BaseAPIView):
                 category__number=category_number
             )
         except Task.DoesNotExist:
+            print("TASK NOT FOUND")
             raise NotFound(detail="Task not found")
         
         Task.objects.hide_task(task.id)
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CategoriesView(BaseAPIView):

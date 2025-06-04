@@ -68,14 +68,28 @@ class ApiClient():
             return None
         
     def update_task(self, category_number, task_number, task_title):
-        response = requests.put(TASK_ACTION_URL, headers={'TOKEN': TOKEN, 'TELEGRAM-ID': self.username, 'CATEGORY-NUMBER': category_number, 'TASK-NUMBER': task_number}, json={'title': task_title})
+        response = requests.put(f"{TASK_ACTION_URL}{category_number}/{task_number}/", headers={'TOKEN': TOKEN, 'TELEGRAM-ID': self.username}, json={'title': task_title})
         
         if response.status_code == 200:
             return "Задача успешно обновлена"
         else:
             return None
         
+    def done_task(self, category_number, task_number, is_done):
+        response = requests.put(f"{TASK_ACTION_URL}{category_number}/{task_number}/", headers={'TOKEN': TOKEN, 'TELEGRAM-ID': self.username}, json={'is_done': is_done})
         
+        if response.status_code == 200:
+            return "Задача успешно выполнена"
+        else:
+            return None
+        
+    def delete_task(self, category_number, task_number):
+        response = requests.delete(f"{TASK_ACTION_URL}{category_number}/{task_number}/", headers={'TOKEN': TOKEN, 'TELEGRAM-ID': self.username})
+        
+        if response.status_code == 204:
+            return "Задача успешно удалена"
+        else:
+            return None
         
     
     def get_categories(self, is_list=False):
@@ -115,7 +129,7 @@ class ApiClient():
             return None
         
     def update_category(self, category_number, category_title):
-        response = requests.put(CATEGORIES_ACTION_URL, headers={'TOKEN': TOKEN, 'TELEGRAM-ID': self.username, 'CATEGORY-NUMBER': category_number}, json={'title': category_title})
+        response = requests.put(f"{CATEGORIES_ACTION_URL}{category_number}/", headers={'TOKEN': TOKEN, 'TELEGRAM-ID': self.username}, json={'title': category_title})
         
         if response.status_code == 200:
             return "Категория успешно обновлена"

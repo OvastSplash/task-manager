@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models import Prefetch
 
 # Create your models here.
 User = get_user_model()
@@ -45,7 +46,11 @@ class TaskCategoryManager(models.Manager):
         for i, cat in enumerate(categories, start=1):
             cat.number = i
             cat.save()
-            
+
+        tasks = Task.objects.filter(category=category).prefetch_related(Prefetch('category', queryset=TaskCategory.objects.filter(is_visible=True)))
+        for task in tasks:
+            Task.objects.hide_task(task.id)
+
         return category
     
     # Показывает категорию
